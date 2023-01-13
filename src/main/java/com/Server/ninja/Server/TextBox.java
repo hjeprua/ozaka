@@ -601,6 +601,13 @@ public class TextBox
                                     Service.ServerMessage(_char, String.format(Text.get(0, 307), 10000));
                                 } else {
                                     if (war.coinTotal > 0 && war.coinTotal == coin && clan2.coin >= coin) {
+                                        war.timeLength = (int)(System.currentTimeMillis() / 1000L + 15);
+                                        war.isFinght = true;
+                                        war.isWait = false;
+                                        war.isInvite = true;
+                                        war.clanBlack.updateCoin(-coin);
+                                        war.clanWhite.updateCoin(-coin);
+                                        war.coinTotal = coin;
                                         final TileMap tileMap = war.maps[1].getSlotZone(_char);
                                         final Map map = war.maps[0];
                                         if (map != null) {
@@ -613,14 +620,14 @@ public class TextBox
                                                             for (short k = (short)(tile.aCharInMap.size() - 1); k >= 0; --k) {
                                                                 final Char player3 = tile.aCharInMap.get(k);
                                                                 Clan cl = Clan.get(player3.cClanName);
-                                                                short m =22;
-                                                                if (cl.typeWar == 4) {
-                                                                    m = 119;
+                                                                short mapId = 22;
+                                                                if (player3.clan.typeWar == 4) {
+                                                                    mapId = 118;
                                                                 }
-                                                                if (cl.typeWar == 5) {
-                                                                    m = 118;
+                                                                if (player3.clan.typeWar == 5) {
+                                                                    mapId = 119;
                                                                 }
-                                                                final Map map3 = WarClan.getMap(war, m);
+                                                                final Map map3 = WarClan.getMap(war, mapId);
                                                                 if (map3 != null) {
                                                                     final TileMap tileMap2 = map3.getSlotZone(player3);
                                                                     if (tileMap2 != null) {
@@ -628,6 +635,9 @@ public class TextBox
                                                                         player3.cx = map3.template.goX;
                                                                         player3.cy = map3.template.goY;
                                                                         tileMap2.Join(player3);
+                                                                        player3.cTypePk = cl.typeWar;
+                                                                        player3.clan.warClan = war;
+                                                                        Service.mapTime(player3, (int) (war.timeLength - System.currentTimeMillis() / 1000L));
                                                                     }
                                                                     else {
                                                                         GameCanvas.startOKDlg(_char.user.session, Text.get(0, 9));
@@ -646,9 +656,6 @@ public class TextBox
                                             }
                                         }
                                         war.WarClanMessage("Hãy mau chóng tập hợp thành viên gia tộc, trận chiến sẽ bắt đầu sau 5 phút.");
-                                        war.timeLength = (int)(System.currentTimeMillis() / 1000L + WarClan.setTimeChien);
-                                        war.isFinght = true;
-                                        war.isWait = false;
                                     }
                                     else {
                                         war.coinTotal = coin;

@@ -8,8 +8,8 @@ public class WarClan {
     protected Map[] maps;
     protected byte warClanID;
     protected int coinTotal;
-    protected ArrayList<Char> blacks;
-    protected ArrayList<Char> white;
+    protected ArrayList<Integer> blacks;
+    protected ArrayList<Integer> white;
     protected final ArrayList<Char> AChar;
 
     protected Clan clanBlack;
@@ -19,6 +19,7 @@ public class WarClan {
     protected byte typeWin;
     protected int timeLength;
     protected boolean isFinght;
+    protected boolean isInvite;
     protected boolean isWait;
     protected static final String[] TITLE;
     private static final short[] arrMapId;
@@ -46,12 +47,12 @@ public class WarClan {
             final WarClan warClan;
             final WarClan war = warClan = new WarClan();
             final byte baseId = WarClan.baseId;
-            WarClan.baseId = (byte)(baseId + 1);
+            WarClan.baseId = (byte) (baseId + 1);
             warClan.warClanID = baseId;
             war.maps = new Map[WarClan.arrMapId.length];
             for (byte i = 0; i < WarClan.arrMapId.length; ++i) {
                 final MapTemplate template = GameScr.mapTemplates[WarClan.arrMapId[i]];
-                war.maps[i] = new Map(template.mapID, (byte)20, template.numZone);
+                war.maps[i] = new Map(template.mapID, (byte) 20, template.numZone);
                 war.maps[i].warClan = war;
             }
             for (byte i = 0; i < war.maps.length; ++i) {
@@ -60,7 +61,7 @@ public class WarClan {
                     for (byte j = 0; j < map.tileMaps.length; ++j) {
                         final TileMap tileMap = map.tileMaps[j];
                         if (tileMap != null) {
-                            tileMap.initWaypoint(6);
+                            tileMap.initWaypoint(1);
                         }
                     }
                 }
@@ -71,7 +72,7 @@ public class WarClan {
                     map.start();
                 }
             }
-            war.timeLength = (int)(System.currentTimeMillis() / 1000L + 60);
+            war.timeLength = (int) (System.currentTimeMillis() / 1000L + 60);
             WarClan.arrWarClan.add(war);
             return war;
         }
@@ -118,38 +119,25 @@ public class WarClan {
         final TileMap tileMap = this.maps[1].tileMaps[0];
         final long coin = this.coinTotal * 2L * 9L / 10L;
         if (type == -1) {
-            for (short i = 0; i < tileMap.numPlayer; ++i) {
-                final Char player = tileMap.aCharInMap.get(i);
+            clanWhite.updateCoin(coin / 2L);
+            clanBlack.updateCoin(coin / 2L);
+            for (final Char player : AChar) {
                 if (player != null && player.user != null && player.user.session != null) {
-                    if (clanWhite.name.equals(clanWhites)) {
-                        clanWhite.updateCoin(coin/2L);
-                    }
-                    if (clanBlack.name.equals(clanBlacks)) {
-                        clanBlack.updateCoin(coin/2L);
-                    }
-                    Service.ServerMessage(player, "Hai gia tộc hoà nhau và nhận lại " + coin + " gia tộc.");
+                    Service.ServerMessage(player, "Hai gia tộc hoà nhau và nhận lại " + coin + " xu gia tộc.");
                 }
             }
-        }
-        else if (type == 0) {
-            for (short i = 0; i < tileMap.numPlayer; ++i) {
-                final Char player = tileMap.aCharInMap.get(i);
+        } else if (type == 0) {
+            clanWhite.updateCoin(coin);
+            for (final Char player : AChar) {
                 if (player != null && player.user != null && player.user.session != null) {
-                    if (clanWhite.name.equals(clanWhites)) {
-                        clanWhite.updateCoin(coin);
-                    }
-                    Service.ServerMessage(player, "Gia tộc " + clanWhites + " giành chiến thắng và nhận được " + coin + " gia tộc.");
+                    Service.ServerMessage(player, "Gia tộc " + clanWhite.name + " giành chiến thắng và nhận được " + coin + " xu gia tộc.");
                 }
             }
-        }
-        else if (type == 1) {
-            for (short i = 0; i < tileMap.numPlayer; ++i) {
-                final Char player = tileMap.aCharInMap.get(i);
+        } else if (type == 1) {
+            clanBlack.updateCoin(coin);
+            for (final Char player : AChar) {
                 if (player != null && player.user != null && player.user.session != null) {
-                    if (clanBlack.name.equals(clanBlacks)) {
-                        clanBlack.updateCoin(coin);
-                    }
-                    Service.ServerMessage(player, "Gia tộc " + clanBlacks + " giành chiến thắng và nhận được " + coin + " gia tộc.");
+                    Service.ServerMessage(player, "Gia tộc " + clanBlack.name + " giành chiến thắng và nhận được " + coin + " xu gia tộc.");
                 }
             }
         }
@@ -165,7 +153,13 @@ public class WarClan {
                 }
             }
         } else if (this.isFinght) {
-            this.finish((byte)(-1));
+            if (pointWhite == pointBlack) {
+                this.finish((byte) (-1));
+            } else if (pointWhite > pointBlack) {
+                this.finish((byte) (0));
+            } else {
+                this.finish((byte) (1));
+            }
         }
         for (byte i = 0; i < this.maps.length; ++i) {
             final Map map = this.maps[i];
@@ -176,7 +170,7 @@ public class WarClan {
                         try {
                             tileMap.lock.lock("Close war clan");
                             try {
-                                for (short k = (short)(tileMap.aCharInMap.size() - 1); k >= 0; --k) {
+                                for (short k = (short) (tileMap.aCharInMap.size() - 1); k >= 0; --k) {
                                     final Char player = tileMap.aCharInMap.get(k);
                                     if (player != null && player.isHuman) {
                                         final Map ltd = MapServer.getMapServer(player.mapLTDId);
@@ -184,9 +178,7 @@ public class WarClan {
                                             final TileMap tile = ltd.getSlotZone(player);
                                             if (tile == null) {
                                                 GameCanvas.startOKDlg(player.user.session, Text.get(0, 9));
-                                            }
-                                            else {
-                                                player.testDunPhe = -1;
+                                            } else {
                                                 player.tileMap.EXIT(player);
                                                 player.cx = tile.map.template.goX;
                                                 player.cy = tile.map.template.goY;
@@ -199,12 +191,10 @@ public class WarClan {
                                         }
                                     }
                                 }
-                            }
-                            finally {
+                            } finally {
                                 tileMap.lock.unlock();
                             }
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
@@ -229,18 +219,16 @@ public class WarClan {
                         try {
                             tileMap.lock.lock("Chat gtc");
                             try {
-                                for (short k = (short)(tileMap.aCharInMap.size() - 1); k >= 0; --k) {
+                                for (short k = (short) (tileMap.aCharInMap.size() - 1); k >= 0; --k) {
                                     final Char player = tileMap.aCharInMap.get(k);
                                     if (player != null && player.user != null && player.user.session != null) {
                                         Service.ServerMessage(player, str);
                                     }
                                 }
-                            }
-                            finally {
+                            } finally {
                                 tileMap.lock.unlock();
                             }
-                        }
-                        catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
@@ -249,26 +237,26 @@ public class WarClan {
         }
     }
 
-    protected void update() {
-        Char char1 = Client.getPlayer(clanBlack.main_name);
-        Char char2 = Client.getPlayer(clanWhite.main_name);
-        if ((char1 == null || char2 == null) && isWait) {
-            WarClanMessage("Trận đấu bị huỷ bỏ.");
-            CLOSE();
-        }
-        if (char1 != null && char2 != null && isWait) {
-            Char c = char1.findCharInMap(char2.charID);
-            if (c == null) {
-                this.CLOSE();
+    protected static void upPointWarClan(final Char _char, short pointPlus) {
+        if (_char.tileMap.map.isWarClanMap()) {
+            if (_char.pointWarClan + pointPlus > 32767) {
+                pointPlus = 0;
             }
+            _char.pointWarClan += pointPlus;
+            if (_char.clan.typeWar == 4) {
+                _char.tileMap.map.warClan.pointWhite += pointPlus;
+            } else if (_char.clan.typeWar == 5) {
+                _char.tileMap.map.warClan.pointBlack += pointPlus;
+            }
+            Service.pointChienTruong(_char, _char.pointWarClan);
         }
     }
 
     static {
-        arrMapId = new short[] {117,118,119,120,121,122,123,124};
+        arrMapId = new short[]{117, 118, 119, 120, 121, 122, 123, 124};
         LOCK = new Object();
-        WarClan.setTimeChien = 3600;
-        TITLE = new String[] { "Học Giả", "Hạ Nhẫn", "Trung Nhẫn", "Thượng nhẫn", "Nhẫn Giả" };
+        WarClan.setTimeChien = 30;
+        TITLE = new String[]{"Học Giả", "Hạ Nhẫn", "Trung Nhẫn", "Thượng nhẫn", "Nhẫn Giả"};
         WarClan.arrWarClan = new ArrayList<>();
     }
 }

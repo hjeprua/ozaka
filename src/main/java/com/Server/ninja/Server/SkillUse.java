@@ -205,6 +205,11 @@ public class SkillUse
                     Service.ServerMessage(player, String.format(Text.get(0, 333), myChar.cName));
                     myChar.user.player.upPointChientruong((short)5);
                 }
+                if (tileMap.map.isWarClanMap()) {
+                    Service.ServerMessage(myChar, String.format(Text.get(0, 332), player.cName));
+                    Service.ServerMessage(player, String.format(Text.get(0, 333), myChar.cName));
+                    WarClan.upPointWarClan(_char, (short) 5);
+                }
             }
             try {
                 if (flag) {
@@ -374,6 +379,15 @@ public class SkillUse
                             }
                             else {
                                 myChar.user.player.upPointChientruong((short)1);
+                            }
+                        }
+                        if (tileMap.map.isWarClanMap()) {
+                            if (mob.levelBoss == 2) {
+                                WarClan.upPointWarClan(_char, (short) 50);
+                            } else if (mob.levelBoss == 1) {
+                                WarClan.upPointWarClan(_char, (short) 10);
+                            } else {
+                                WarClan.upPointWarClan(_char, (short) 1);
                             }
                         }
                         if (sb != null && tileMap.map.isSevenBeasts() && (mob.templateId == 112 || mob.templateId == 113)) {

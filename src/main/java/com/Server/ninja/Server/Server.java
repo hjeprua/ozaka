@@ -216,7 +216,15 @@ public class Server extends Thread {
             synchronized (WarClan.LOCK) {
                 for (int l = WarClan.arrWarClan.size() - 1; l >= 0; --l) {
                     final WarClan war = WarClan.arrWarClan.get(l);
-                    war.update();
+                    if (war != null && war.isInvite && war.timeLength <= System.currentTimeMillis() / 1000L) {
+                        war.isInvite = false;
+                        war.timeLength = (int)(System.currentTimeMillis() / 1000L + WarClan.setTimeChien);
+                        for (Char c : war.AChar) {
+                            if (c != null) {
+                                Service.mapTime(c, (int) (war.timeLength - System.currentTimeMillis() / 1000L));
+                            }
+                        }
+                    }
                     if (war != null && war.timeLength <= System.currentTimeMillis() / 1000L) {
                         WarClan.arrWarClan.remove(l);
                         war.CLOSE();

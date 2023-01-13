@@ -87,7 +87,7 @@ public class Confirm {
 
                                 // được mời thì là  _char và là phe trắng
                                 _char.tileMap.Exit(_char);
-                                _char.cx = (short) (tile2.map.template.goX + 360);
+                                _char.cx = (short) (tile2.map.template.goX + 210);
                                 _char.cy = tile2.map.template.goY;
                                 tile2.Join(_char);
 

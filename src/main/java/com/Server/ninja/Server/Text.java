@@ -408,10 +408,10 @@ public class Text {
                 "Lỗi",//340
                 "Hắc giả",//341
                 "Bạch giả",//342
-                "c3%s giành chiến thắng"
+                "%s giành chiến thắng"
                         + "\nc0",//343
                 "Chiến trường đã kết thúc",//344
-                "c3Hắc giả và bạch giả hòa nhau"
+                "Hắc giả và bạch giả hòa nhau"
                         + "\nc0",//345
                 "Tuần thú lệnh không cho phép dùng ở nơi này.",//346
                 "Long đầu trụ sẽ suất hiện từ khu 1 - khu 10 chỉ sau vài phút nữa.",//347

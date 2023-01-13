@@ -307,7 +307,7 @@ public class TileMap
     
     protected short getIdMobAdd() {
         short mobId = -1;
-        for (short index = this.maxMobId; index < 255; ++index) {
+        for (short index = this.maxMobId; index < Mob.arrMobTemplate.length; ++index) {
             boolean isTimra = true;
             for (short i = this.maxMobId; i < this.aMob.size(); ++i) {
                 final Mob mob = this.aMob.get(i);
@@ -366,6 +366,8 @@ public class TileMap
                 }
                 else if ((_char.testDunPhe == 1 || (this.map.isChienTruong() && this.map.chientruong.aCharBlack.contains(_char.user.player.playerId))) && this.map.isPKMap()) {
                     _char.cTypePk = 5;
+                } else if (this.map.isWarClanMap()) {
+                    _char.cTypePk = _char.clan.typeWar;
                 }
                 else {
                     _char.cTypePk = 0;
@@ -410,6 +412,7 @@ public class TileMap
                 Task.inMap(_char);
                 if (this.map.isWarClanMap()) {
                     Service.mapTime(_char, (int)(this.map.warClan.timeLength - System.currentTimeMillis() / 1000L));
+                    Service.pointChienTruong(_char, _char.pointWarClan);
                 }
                 else if (this.map.isBackCaveMap()) {
                     Service.mapTime(_char, (int)(this.map.backCave.timeLength - System.currentTimeMillis() / 1000L));
@@ -458,8 +461,10 @@ public class TileMap
             }
             else if (!_char.isNhanban && this.map.isSevenBeasts()) {
                 sb.addChar(_char);
-            }
-            else if (!_char.isNhanban && this.map.template.mapID == 129) {
+            } else if (!_char.isNhanban && this.map.isWarClanMap()) {
+                Service.updateTypePk(_char, _char.charID, _char.clan.typeWar);
+                this.map.warClan.addChar(_char);
+            } else if (!_char.isNhanban && this.map.template.mapID == 129) {
                 this.map.njTalent.addChar(_char);
             }
         }
@@ -705,10 +710,6 @@ public class TileMap
                     }
                     case 5: {
                         vmap = NJTalent.getMap(this.map.njTalent, template.WmapID[i]);
-                        break;
-                    }
-                    case 6: {
-                        vmap = WarClan.getMap(this.map.warClan, template.WmapID[i]);
                         break;
                     }
                     case 7: {

@@ -1519,19 +1519,56 @@ public class Menu {
                     break;
                 }
                 case 32: {
+                    if (_char.tileMap != null && _char.tileMap.mapID == 117) {
+                        if (menuId == 0) {
+                            Service.openTextBoxUI(_char, "Nhập xu cược", (short) 515);
+                        } else if (menuId == 1) {
+                            TileMap.getMapLTD(_char);
+                        }
+                        break;
+                    } else if (_char.tileMap != null && (_char.tileMap.mapID == 118 || _char.tileMap.mapID == 119)) {
+                        if (menuId == 0) {
+                            TileMap.getMapLTD(_char);
+                        } else if (menuId == 1) {
+                            Service.AlertMessage(_char,"Tổng kết", String.format("%s : Tích luỹ %s điểm\n" +
+                                    "%s : Tích luỹ %s điểm", _char.clan.warClan.clanBlack.name, _char.clan.warClan.pointBlack,
+                                    _char.clan.warClan.clanWhite.name, _char.clan.warClan.pointWhite));
+                        }
+                        break;
+                    }
                     if (menuId == 0) {
                         break;
                     }
                     if (menuId == 1) {
-                        if (_char.cClanName != null) {
-                            Clan clan = Clan.get(_char.cClanName);
+                        Clan clan = Clan.get(_char.cClanName);
+                        if (clan.warClan != null) {
+                            short mapId = 22;
+                            if (_char.clan.typeWar == 4) {
+                                mapId = 118;
+                            }
+                            if (_char.clan.typeWar == 5) {
+                                mapId = 119;
+                            }
+                            final Map map = WarClan.getMap(clan.warClan, mapId);
+                            if (map != null) {
+                                final TileMap tile = map.getSlotZone(_char);
+                                if (tile == null) {
+                                    GameCanvas.startOKDlg(_char.user.session, Text.get(0, 9));
+                                } else {
+                                    _char.tileMap.Exit(_char);
+                                    _char.cx = tile.map.template.goX;
+                                    _char.cy = tile.map.template.goY;
+                                    tile.Join(_char);
+                                }
+                            }
+                        } else if (clan != null) {
                             if (clan.main_name.equals(_char.cName)) {
                                 Service.openTextBoxUI(_char, "Nhập tên gia tộc đối thủ", (short) 514);
                             } else {
                                 Service.openUISay(_char, npcId, "Chức năng chỉ dành cho tộc trưởng.");
                             }
                         } else {
-                            Service.openUISay(_char, npcId, "Chức năng chỉ dành cho tộc trưởng.");
+                            Service.openUISay(_char, npcId, "Chức năng chỉ dành cho người có gia tộc.");
                         }
                         break;
                     }
@@ -1620,28 +1657,6 @@ public class Menu {
                         }
                         case 2: {
                             Service.AlertMessage(_char, "Hướng dẫn", "");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case 38: {
-                    switch (menuId) {
-                        case 0: {
-                            Service.openTextBoxUI(_char, "Nhập xu cược", (short) 515);
-                            break;
-                        }
-                        case 1: {
-                            synchronized (WarClan.LOCK) {
-                                Clan clan = Clan.get(_char.cClanName);
-                                for (int i = WarClan.arrWarClan.size() - 1; i >= 0; --i) {
-                                    final WarClan war = WarClan.arrWarClan.get(i);
-                                    if (war != null && war.warClanID == clan.warId) {
-                                        WarClan.arrWarClan.remove(i);
-                                        war.CLOSE();
-                                    }
-                                }
-                            }
                             break;
                         }
                     }
@@ -1754,6 +1769,14 @@ public class Menu {
         } else if (_char.tileMap != null && _char.tileMap.mapID == 22 && npcTemplateId == 24) {
             _char.menuType = 1;
             Service.openUIMenuNew(_char, new String[]{Text.get(0, 155)});
+        } else if (_char.tileMap != null && _char.tileMap.map.isWarClanMap() && npcTemplateId == 32) {
+            _char.menuType = 1;
+            if (_char.tileMap.mapID == 117 ) {
+                Service.openUIMenuNew(_char, new String[]{"Đặt cược", "Rời khỏi nơi này"});
+            }
+            if (_char.tileMap.mapID == 118 || _char.tileMap.mapID == 119) {
+                Service.openUIMenuNew(_char, new String[]{"Rời khỏi nơi này", "Tổng kết"});
+            }
         } else {
             Service.openUIMenu(_char, Arrcaption);
         }

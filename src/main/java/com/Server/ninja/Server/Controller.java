@@ -232,6 +232,15 @@ public class Controller {
                                 map = ClanManor.getMap(tileMap.map.clanManor, (short) 80);
                             } else if (tileMap.map.isSevenBeasts()) {
                                 map = SevenBeasts.getMap(tileMap.map.sevenBeasts, (short) 113);
+                            } else if (tileMap.map.isWarClanMap()) {
+                                short mapId = 22;
+                                if (_char.clan.typeWar == 4) {
+                                    mapId = 118;
+                                }
+                                if (_char.clan.typeWar == 5) {
+                                    mapId = 119;
+                                }
+                                map = WarClan.getMap(tileMap.map.warClan, mapId);
                             } else {
                                 map = MapServer.getMapServer(_char.mapLTDId);
                             }
@@ -2266,9 +2275,9 @@ public class Controller {
                                 Service.MELoadThuNuoi(_char, mob);
                             }
                             final short mobViThuId = Mob.itemMob(_char.arrItemViThu[4]);
-                            if (mobViThuId > 0) {
+                            if (mobViThuId > 1 && _char.arrItemViThu[4] != null) {
                                 final Char char1 = _char;
-                                final Mob mobMe = new Mob(_char.tileMap, (short) (-1), mobViThuId, (byte) 1, 0, 0, _char.cx, (short) (_char.cy - 40), (byte) 5, (byte) 0, Mob.arrMobTemplate[mobTemplateId].isBoss, -1);
+                                final Mob mobMe = new Mob(_char.tileMap, (short) (-1), mobViThuId, (byte) 1, 0, 0, _char.cx, (short) (_char.cy - 40), (byte) 5, (byte) 0, Mob.arrMobTemplate[mobViThuId].isBoss, -1);
                                 char1.mobMe = mobMe;
                                 final Mob mob = mobMe;
                                 Service.MELoadThuNuoi(_char, mob);

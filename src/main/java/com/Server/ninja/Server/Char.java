@@ -109,6 +109,7 @@ public class Char {
     protected int caveId;
     protected int partyCaveId;
     protected short pointChienTruong;
+    protected short pointWarClan;
     protected long lastTimeOnline;
     protected int testCharID;
     protected int delaytestCharID;
@@ -1329,6 +1330,15 @@ public class Char {
             } else if (wa.mapGo.isSevenBeasts() && sb != null && !SevenBeasts.isStart) {
                 Service.restPoint(_char);
                 GameCanvas.startOKDlg(_char.user.session, Text.get(0, 407));
+            } else if (wa.mapGo.isWarClanMap() && _char.clan.warClan != null && _char.clan.warClan.isInvite) {
+                Service.restPoint(_char);
+                GameCanvas.startOKDlg(_char.user.session, "Chưa tới giờ chiến đấu.");
+            } else if (wa.mapGo.isWarClanMap() && wa.mapGo.template.mapID == 119 && _char.cTypePk != 5) {
+                Service.restPoint(_char);
+                GameCanvas.startOKDlg(_char.user.session, "Không thể vào");
+            } else if (wa.mapGo.isWarClanMap() && wa.mapGo.template.mapID == 118 && _char.cTypePk != 4) {
+                Service.restPoint(_char);
+                GameCanvas.startOKDlg(_char.user.session, "Không thể vào");
             } else {
                 if (!_char.tileMap.map.isBackCaveMap()) {
                     for (byte l = 0; l < _char.ItemMounts.length; ++l) {

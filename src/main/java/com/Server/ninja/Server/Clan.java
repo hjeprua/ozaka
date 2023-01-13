@@ -63,6 +63,7 @@ public class Clan {
     protected int delayWarClan;
     protected byte typeWar;
     protected String warClanname;
+    protected WarClan warClan;
     protected final ArrayList<Clan_ThanThu> clan_thanThu;
     protected ClanManor clanManor;
 
